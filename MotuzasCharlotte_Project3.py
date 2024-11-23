@@ -45,8 +45,6 @@ r_soln = np.linspace(r_i,rs,10000)
 Mch = (5.836/(mu_e**2))*1.989e30
 M = np.empty(len(rho_c))
 R = np.empty(len(rho_c))
-M_msun = np.empty(len(rho_c))
-R_rsun = np.empty(len(rho_c))
 for i in range(len(rho_c)):
     v0 = np.array([rho_c[i],0])
     result = scint.solve_ivp(dstatedt,(r_i,rs),v0,t_eval=r_soln,events=stop_event)
@@ -54,8 +52,6 @@ for i in range(len(rho_c)):
     # Question 2 - Transforming into physical units
     M[i] = result.y_events[0][0][1]*M0 # kg 
     R[i] = result.t_events[0][0]*R0*1e-5
-    M_msun[i] = result.y_events[0][0][1]*M0/1.989e30 # kg 
-    R_rsun[i] = result.t_events[0][0]*R0*1e-5/696340
 
     plt.scatter(M[i],R[i],label="$\\rho_c$ = {}".format(round(rho_c[i],1)))
 plt.plot(np.array([Mch,Mch]),np.array([-200,15000]),'k--',label="Chandrasekhar Limit")
@@ -95,6 +91,23 @@ print(diff)
 # mass and radius). Plot these observed data with their error bars on your computed mass-radius relation, paying attention 
 # to the units. How well do the observations agree with your calculations?
 
+rho_c = np.logspace(-1,6.3,50)
+
+M = np.empty(len(rho_c))
+R = np.empty(len(rho_c))
+M_msun = np.empty(len(rho_c))
+R_rsun = np.empty(len(rho_c))
+for i in range(len(rho_c)):
+    v0 = np.array([rho_c[i],0])
+    result = scint.solve_ivp(dstatedt,(r_i,rs),v0,t_eval=r_soln,events=stop_event)
+    
+    # Question 2 - Transforming into physical units
+    M[i] = result.y_events[0][0][1]*M0 # kg 
+    R[i] = result.t_events[0][0]*R0*1e-5
+    M_msun[i] = result.y_events[0][0][1]*M0/1.989e30 # kg 
+    R_rsun[i] = result.t_events[0][0]*R0*1e-5/696340
+
+
 M_Msun_data = []
 M_unc = []
 R_Rsun_data = []
@@ -112,11 +125,12 @@ with open('wd_mass_radius.csv') as csvfile:
 print(M_Msun_data)
 print(R_Rsun_data)
 
-plt.scatter(M_msun,R_rsun,color='red')
-plt.errorbar(M_Msun_data,R_Rsun_data,yerr=R_unc,xerr=M_unc,fmt='o',linewidth=0.5)
+plt.plot(M_msun,R_rsun,'r')
+plt.errorbar(M_Msun_data,R_Rsun_data,yerr=R_unc,xerr=M_unc,fmt='o',linewidth=0.5,markersize=4)
 plt.title('White Dwarf Mass vs Radius')
 plt.xlabel('Mass ($M_{sun}$)')
 plt.ylabel('Radius ($R_{sun}$)')
+plt.legend(['Computed Mass-Radius Relation','Gaia Measurements'])
 plt.show()
 
 #plt.errorbar(np.array([10,40,70]),np.array([np.average(T_exp_10),np.average(T_exp_40),np.average(T_exp_70)]),yerr=errorvec,fmt='-',linewidth=0.5)
