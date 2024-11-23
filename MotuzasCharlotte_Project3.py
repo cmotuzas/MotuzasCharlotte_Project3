@@ -32,7 +32,7 @@ def stop_event(r,statevec):
     return statevec[0]
 
 stop_event.terminal = True
-#stop_event.direction = -1
+
 
 rho_c = np.logspace(-1,6.3,10)
 mu_e = 2
@@ -40,18 +40,13 @@ m0 = (5.67e33/(mu_e**2))/1000
 r_0 = 1e-10 # told to start at a tiny version of r
 rho_0 = (9.74*1e5)*mu_e # g/cm^3
 rs = 10
-v0 = np.array([rho_c[7],0])
-print(v0)
 r_soln = np.linspace(r_0,rs,10000)
 
-result = scint.solve_ivp(dstatedt,(r_0,rs),v0,t_eval=r_soln,events=stop_event)
-
-
-print(result.t_events[0],result.y_events[0][0][1])
-
-
-
-plt.scatter(result.y_events[0][0][1],result.t_events[0])
+for i in range(len(rho_c)):
+    v0 = np.array([rho_c[i],0])
+    result = scint.solve_ivp(dstatedt,(r_0,rs),v0,t_eval=r_soln,events=stop_event)
+    plt.scatter(result.y_events[0][0][1],result.t_events[0])
+    
 plt.show()
 # Question 2
 
