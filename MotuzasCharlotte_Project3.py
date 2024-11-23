@@ -99,3 +99,26 @@ print(diff)
 # mass and radius). Plot these observed data with their error bars on your computed mass-radius relation, paying attention 
 # to the units. How well do the observations agree with your calculations?
 
+M_Msun = []
+M_unc = []
+R_Rsun = []
+R_unc = []
+
+with open('wd_mass_radius.csv') as csvfile: 
+    csvReader = csv.reader(csvfile)
+    next(csvReader, None)  # skip the headers
+    for row in csvReader: 
+        M_Msun.append(float(row[0]))
+        M_unc.append(float(row[1]))
+        R_Rsun.append(float(row[2]))
+        R_unc.append(float(row[3]))
+
+print(M_Msun)
+print(R_Rsun)
+
+
+plt.errorbar(M_Msun,R_Rsun,yerr=R_unc,xerr=M_unc,fmt='o',linewidth=0.5)
+plt.show()
+
+#plt.errorbar(np.array([10,40,70]),np.array([np.average(T_exp_10),np.average(T_exp_40),np.average(T_exp_70)]),yerr=errorvec,fmt='-',linewidth=0.5)
+
