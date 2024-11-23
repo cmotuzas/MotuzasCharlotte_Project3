@@ -36,18 +36,40 @@ stop_event.terminal = True
 
 rho_c = np.logspace(-1,6.3,10)
 mu_e = 2
-m0 = (5.67e33/(mu_e**2))/1000
-r_0 = 1e-10 # told to start at a tiny version of r
+M0 = (5.67e33/(mu_e**2))/1000
+R0 = 7.72e8/mu_e
+r_i = 1e-10 # told to start at a tiny version of r
 rho_0 = (9.74*1e5)*mu_e # g/cm^3
 rs = 10
-r_soln = np.linspace(r_0,rs,10000)
-
+r_soln = np.linspace(r_i,rs,10000)
+M = np.empty(len(rho_c))
+R = np.empty(len(rho_c))
+M_msun = np.empty(len(rho_c))
 for i in range(len(rho_c)):
     v0 = np.array([rho_c[i],0])
-    result = scint.solve_ivp(dstatedt,(r_0,rs),v0,t_eval=r_soln,events=stop_event)
-    plt.scatter(result.y_events[0][0][1],result.t_events[0])
+    result = scint.solve_ivp(dstatedt,(r_i,rs),v0,t_eval=r_soln,events=stop_event)
     
+    # Question 2 - Transforming into physical units
+    M[i] = result.y_events[0][0][1]*M0 # kg 
+    R[i] = result.t_events[0][0]*R0*1e-5
+    M_msun[i] = result.y_events[0][0][1]*M0*4/1.989e30 # kg 
+
+
+    plt.scatter(M[i],R[i],label="$\\rho_c$ = {}".format(round(rho_c[i],1)))
+plt.title('White Dwarf Mass vs Radius')
+plt.xlabel('Mass (kg)')
+plt.ylabel('Radius (km)')
+plt.legend()
 plt.show()
+
+for i in range(len(rho_c)): # done as a loop for labelling purposes
+    plt.scatter(M_msun[i],R[i],label="$\\rho_c$ = {}".format(round(rho_c[i],1)))
+plt.title('White Dwarf Mass vs Radius')
+plt.xlabel('Mass ($M_{sun}$)')
+plt.ylabel('Radius (km)')
+plt.legend()
+plt.show()
+
 # Question 2
 
 # Transform your results from the ODE solution into physical (not dimensionless) units and plot R as a function of 
