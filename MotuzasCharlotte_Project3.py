@@ -4,7 +4,7 @@
 import numpy as np 
 import matplotlib.pyplot as plt 
 import scipy.integrate as scint  
-import scipy.interpolate as interp
+import csv
 import astropy.units as astro 
 
 # Question 1 
@@ -45,6 +45,7 @@ r_soln = np.linspace(r_i,rs,10000)
 M = np.empty(len(rho_c))
 R = np.empty(len(rho_c))
 M_msun = np.empty(len(rho_c))
+R_rsun = np.empty(len(rho_c))
 for i in range(len(rho_c)):
     v0 = np.array([rho_c[i],0])
     result = scint.solve_ivp(dstatedt,(r_i,rs),v0,t_eval=r_soln,events=stop_event)
@@ -53,7 +54,7 @@ for i in range(len(rho_c)):
     M[i] = result.y_events[0][0][1]*M0 # kg 
     R[i] = result.t_events[0][0]*R0*1e-5
     M_msun[i] = result.y_events[0][0][1]*M0*4/1.989e30 # kg 
-
+    R_rsun[i] = result.t_events[0][0]*R0*1e-5/696340
 
     plt.scatter(M[i],R[i],label="$\\rho_c$ = {}".format(round(rho_c[i],1)))
 plt.title('White Dwarf Mass vs Radius')
@@ -63,31 +64,33 @@ plt.legend()
 plt.show()
 
 for i in range(len(rho_c)): # done as a loop for labelling purposes
-    plt.scatter(M_msun[i],R[i],label="$\\rho_c$ = {}".format(round(rho_c[i],1)))
+    plt.scatter(M_msun[i],R_rsun[i],label="$\\rho_c$ = {}".format(round(rho_c[i],1)))
 plt.title('White Dwarf Mass vs Radius')
 plt.xlabel('Mass ($M_{sun}$)')
 plt.ylabel('Radius (km)')
-plt.legend()
-plt.show()
-
-# Question 2
-
-# Transform your results from the ODE solution into physical (not dimensionless) units and plot R as a function of 
-# M(i.e. R on the y-axis and M on the x-axis). Can you estimate the Chandrasekhar limit (the upper limit to white 
-# dwarf masses) from your plot? How does your result compare with Kippenhahn & Weigert (1990) who cite MCh = 5.836/(μe)2 ? 
-# [Hint: you may find the astropy.units package useful for doing the unit conversions.]
-
-
-
+#plt.legend()
 
 # Question 3 
 
 # Pick 3 values of ρc and run solve_ivpagain, choosing a different integration method (of the ones available in solve_ivp) 
 # from the one you used in part (1). How different are your results? 
 
+# RK23
 
+M_23 = np.empty(3)
+R_23 = np.empty(3)
+diff = np.empty(3)
+for i in range(3):
+    v0 = np.array([rho_c[3*i],0])
+    result = scint.solve_ivp(dstatedt,(r_i,rs),v0,method='RK23',t_eval=r_soln,events=stop_event)
+    
+    # Question 2 - Transforming into physical units
+    M_23[i] = result.y_events[0][0][1]*M0 # kg 
+    R_23[i] = result.t_events[0][0]*R0*1e-5
 
+    diff[i] = np.abs((M[3*i]-M_23[i])*100/M[3*i])
 
+print(diff)
 
 # Question 4 
 
@@ -95,3 +98,4 @@ plt.show()
 # Gaia satellite. These data are in the file wd_mass_radius.csv, available on here (measurements are in units of the Sun's 
 # mass and radius). Plot these observed data with their error bars on your computed mass-radius relation, paying attention 
 # to the units. How well do the observations agree with your calculations?
+
