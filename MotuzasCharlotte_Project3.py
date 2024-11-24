@@ -6,6 +6,8 @@ import matplotlib.pyplot as plt
 import scipy.integrate as scint  
 import csv
 import astropy.units as astro 
+from decimal import Decimal
+
 
 # Question 1 
 
@@ -49,17 +51,17 @@ for i in range(len(rho_c)):
     v0 = np.array([rho_c[i],0])
     result = scint.solve_ivp(dstatedt,(r_i,rs),v0,t_eval=r_soln,events=stop_event)
     
-    # Question 2 - Transforming into physical units
+    # Question 2 - Transforming into physical units, plotting, comparing to Mch
     M[i] = result.y_events[0][0][1]*M0 # kg 
     R[i] = result.t_events[0][0]*R0*1e-5
-
-    plt.scatter(M[i],R[i],label="$\\rho_c$ = {}".format(round(rho_c[i],1)))
-plt.plot(np.array([Mch,Mch]),np.array([-200,15000]),'k--',label="Chandrasekhar Limit")
+                                            
+    plt.scatter(M[i],R[i],label=f'$\\rho_c$ = {Decimal(rho_c[i]*rho_0):.2e} $g/cm^3$')
+plt.plot(np.array([Mch,Mch]),np.array([-200,15000]),'k--',label="Chandrasekhar Limit",linewidth=0.8)
 plt.title('White Dwarf Mass vs Radius')
 plt.xlabel('Mass (kg)')
 plt.ylabel('Radius (km)')
 plt.ylim([-200,15000])
-plt.legend()
+plt.legend(fontsize=9)
 plt.show()
 
 # Question 3 
@@ -72,6 +74,7 @@ plt.show()
 M_23 = np.empty(3)
 R_23 = np.empty(3)
 diff = np.empty(3)
+diffR = np.empty(3)
 for i in range(3):
     v0 = np.array([rho_c[3*i],0])
     result = scint.solve_ivp(dstatedt,(r_i,rs),v0,method='RK23',t_eval=r_soln,events=stop_event)
@@ -81,8 +84,12 @@ for i in range(3):
     R_23[i] = result.t_events[0][0]*R0*1e-5
 
     diff[i] = np.abs((M[3*i]-M_23[i])*100/M[3*i])
+    diffR[i] = np.abs((R[3*i]-R_23[i])*100/R[3*i])
 
-print(diff)
+
+print('For rho_c {}, the second method produces a mass that varies by {}, and a radius that differs by {}'.format(round(rho_c[0],2),round(diff[0],2),round(diffR[0],2)))
+print('For rho_c {}, the second method produces a mass that varies by {}, and a radius that differs by {}'.format(round(rho_c[3],2),round(diff[1],2),round(diffR[1],2)))
+print('For rho_c {}, the second method produces a mass that varies by {}, and a radius that differs by {}'.format(round(rho_c[6],2),round(diff[2],2),round(diffR[2],2)))
 
 # Question 4 
 
@@ -122,9 +129,6 @@ with open('wd_mass_radius.csv') as csvfile:
         R_Rsun_data.append(float(row[2]))
         R_unc.append(float(row[3]))
 
-print(M_Msun_data)
-print(R_Rsun_data)
-
 plt.plot(M_msun,R_rsun,'r')
 plt.errorbar(M_Msun_data,R_Rsun_data,yerr=R_unc,xerr=M_unc,fmt='o',linewidth=0.5,markersize=4)
 plt.title('White Dwarf Mass vs Radius')
@@ -132,6 +136,4 @@ plt.xlabel('Mass ($M_{sun}$)')
 plt.ylabel('Radius ($R_{sun}$)')
 plt.legend(['Computed Mass-Radius Relation','Gaia Measurements'])
 plt.show()
-
-#plt.errorbar(np.array([10,40,70]),np.array([np.average(T_exp_10),np.average(T_exp_40),np.average(T_exp_70)]),yerr=errorvec,fmt='-',linewidth=0.5)
 
