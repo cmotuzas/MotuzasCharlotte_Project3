@@ -86,7 +86,10 @@ for i in range(3):
     diff[i] = np.abs((M[3*i]-M_23[i])*100/M[3*i])
     diffR[i] = np.abs((R[3*i]-R_23[i])*100/R[3*i])
 
-
+print(M_23)
+print(M[0],M[3],M[6])
+print(R_23)
+print(R[0],R[3],R[6])
 print('For rho_c {}, the second method produces a mass that varies by {}, and a radius that differs by {}'.format(round(rho_c[0],2),round(diff[0],2),round(diffR[0],2)))
 print('For rho_c {}, the second method produces a mass that varies by {}, and a radius that differs by {}'.format(round(rho_c[3],2),round(diff[1],2),round(diffR[1],2)))
 print('For rho_c {}, the second method produces a mass that varies by {}, and a radius that differs by {}'.format(round(rho_c[6],2),round(diff[2],2),round(diffR[2],2)))
